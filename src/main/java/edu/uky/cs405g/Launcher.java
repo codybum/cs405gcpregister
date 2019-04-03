@@ -26,11 +26,12 @@ public class Launcher {
         gson = new Gson();
 
         //Database Client initialization
-        String DBuser = "vcbumg2";
+        String DBuser = "";
         String DBpassword = "";
         String DBhost = DBuser + ".netlab.uky.edu";
+        String DBname = "";
         System.out.println("Starting Database...");
-        dbEngine = new DBEngine(DBhost, "registration", DBuser, DBpassword);
+        dbEngine = new DBEngine(DBhost, DBname, DBuser, DBpassword);
 
 
         //Database Table initialization
