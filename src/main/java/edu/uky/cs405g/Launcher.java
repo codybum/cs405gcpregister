@@ -33,6 +33,8 @@ public class Launcher {
         System.out.println("Starting Database...");
         dbEngine = new DBEngine(DBhost, DBname, DBuser, DBpassword);
 
+        //Empty DB init
+        dbInit();
 
         //Database Table initialization
         //buildDataBase();
@@ -67,6 +69,16 @@ public class Launcher {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private static void dbInit() {
+
+        /*
+        #location
+        create table location(lid int, address varchar(100) not null, primary key (lid))
+
+        insert into location values (0,'800 Rose St. Lexington, Ky')
+        */
     }
 
     private static void buildDataBase() {
