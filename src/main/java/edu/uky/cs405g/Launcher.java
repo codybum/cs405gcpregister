@@ -30,11 +30,12 @@ public class Launcher {
         String DBpassword = "";
         String DBhost = "[your hostname here].netlab.uky.edu";
         String DBname = "";
+
         System.out.println("Starting Database...");
         dbEngine = new DBEngine(DBhost, DBname, DBuser, DBpassword);
 
         //Empty DB init
-        dbInit();
+        //dbInit();
 
         //Database Table initialization
         //buildDataBase();

@@ -102,7 +102,8 @@ public class DBEngine {
 
             Connection conn = ds.getConnection();
 
-            String queryString = null;
+            try {
+                String queryString = null;
 
 
                 //region
@@ -110,17 +111,22 @@ public class DBEngine {
                         "WHERE id = '" + linkblueId + "'";
 
 
-            Statement stmt = conn.createStatement();
+                Statement stmt = conn.createStatement();
 
 
-            ResultSet rs = stmt.executeQuery(queryString);
+                ResultSet rs = stmt.executeQuery(queryString);
 
-            if(rs.next()) {
-                exist = rs.getBoolean(1);
-            }
-            rs.close();
-            stmt.close();
+                if (rs.next()) {
+                    exist = rs.getBoolean(1);
+                }
+                rs.close();
+                stmt.close();
+            } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
             conn.close();
+        }
+
 
         } catch(Exception ex) {
             ex.printStackTrace();
@@ -133,25 +139,31 @@ public class DBEngine {
         try {
             Connection conn = ds.getConnection();
 
-            String queryString = null;
+            try {
+                String queryString = null;
 
 
-            //region
-            queryString = "SELECT COUNT(1) " + "FROM teams " +
-                    "WHERE id = '" + teamId + "'";
+                //region
+                queryString = "SELECT COUNT(1) " + "FROM teams " +
+                        "WHERE id = '" + teamId + "'";
 
 
-            Statement stmt = conn.createStatement();
+                Statement stmt = conn.createStatement();
 
 
-            ResultSet rs = stmt.executeQuery(queryString);
+                ResultSet rs = stmt.executeQuery(queryString);
 
-            if(rs.next()) {
-                exist = rs.getBoolean(1);
-            }
-            rs.close();
-            stmt.close();
-            conn.close();
+                if (rs.next()) {
+                    exist = rs.getBoolean(1);
+                }
+                rs.close();
+                stmt.close();
+            } catch (Exception e) {
+
+                    e.printStackTrace();
+                } finally {
+                    conn.close();
+                }
 
         } catch(Exception ex) {
             ex.printStackTrace();
@@ -159,30 +171,75 @@ public class DBEngine {
         return exist;
     }
 
+    public boolean endpointExist(String teamId) {
+        boolean exist = false;
+        try {
+            Connection conn = ds.getConnection();
+
+            try {
+                String queryString = null;
+
+
+                //region
+                queryString = "SELECT COUNT(1) " + "FROM endpoints " +
+                        "WHERE team_id = '" + teamId + "'";
+
+
+                Statement stmt = conn.createStatement();
+
+
+                ResultSet rs = stmt.executeQuery(queryString);
+
+                if (rs.next()) {
+                    exist = rs.getBoolean(1);
+                }
+                rs.close();
+                stmt.close();
+            } catch (Exception e) {
+
+                e.printStackTrace();
+            } finally {
+                conn.close();
+            }
+
+        } catch(Exception ex) {
+            ex.printStackTrace();
+        }
+        return exist;
+    }
+
+
     public boolean userOnTeam(String linkblueId) {
         boolean exist = false;
         try {
 
             Connection conn = ds.getConnection();
-            String queryString = null;
+            try {
+                String queryString = null;
 
 
-            //region
-            queryString = "SELECT COUNT(1) " + "FROM ismember " +
-                    "WHERE user_id = '" + linkblueId + "'";
+                //region
+                queryString = "SELECT COUNT(1) " + "FROM ismember " +
+                        "WHERE user_id = '" + linkblueId + "'";
 
 
-            Statement stmt = conn.createStatement();
+                Statement stmt = conn.createStatement();
 
 
-            ResultSet rs = stmt.executeQuery(queryString);
+                ResultSet rs = stmt.executeQuery(queryString);
 
-            if(rs.next()) {
-                exist = rs.getBoolean(1);
+                if (rs.next()) {
+                    exist = rs.getBoolean(1);
+                }
+                rs.close();
+                stmt.close();
+            } catch (Exception e) {
+
+                e.printStackTrace();
+            } finally {
+                conn.close();
             }
-            rs.close();
-            stmt.close();
-            conn.close();
+
 
         } catch(Exception ex) {
             ex.printStackTrace();
@@ -194,11 +251,17 @@ public class DBEngine {
         int result = -1;
         try {
             Connection conn = ds.getConnection();
-            Statement stmt = conn.createStatement();
-            String insertUserString = "INSERT INTO users (id) VALUES('" + linkblueId + "')";
-            result = stmt.executeUpdate(insertUserString);
-            stmt.close();
-            conn.close();
+            try {
+                Statement stmt = conn.createStatement();
+                String insertUserString = "INSERT INTO users (id) VALUES('" + linkblueId + "')";
+                result = stmt.executeUpdate(insertUserString);
+                stmt.close();
+            } catch (Exception e) {
+
+                e.printStackTrace();
+            } finally {
+                conn.close();
+            }
 
         } catch(Exception ex) {
             ex.printStackTrace();
@@ -210,18 +273,23 @@ public class DBEngine {
         int result = -1;
         try {
             Connection conn = ds.getConnection();
-            Statement stmt = conn.createStatement();
-            String insertUserString = "INSERT INTO teams VALUES('" + teamId + "','" + teamName + "')";
-            //INSERT INTO teams (name) VALUES('blah')
-            result = stmt.executeUpdate(insertUserString);
-            stmt.close();
-            conn.close();
+            try {
+                Statement stmt = conn.createStatement();
+                String insertUserString = "INSERT INTO teams VALUES('" + teamId + "','" + teamName + "')";
+                //INSERT INTO teams (name) VALUES('blah')
+                result = stmt.executeUpdate(insertUserString);
+                stmt.close();
 
-        } catch(SQLIntegrityConstraintViolationException exs) {
+            } catch(SQLIntegrityConstraintViolationException exs) {
+                result = -2;
+            } catch (Exception e) {
 
-            result = -2;
+                e.printStackTrace();
+            } finally {
+                conn.close();
+            }
 
-        }catch (Exception ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
         return  result;
@@ -231,12 +299,66 @@ public class DBEngine {
         int result = -1;
         try {
             Connection conn = ds.getConnection();
-            Statement stmt = conn.createStatement();
-            String insertUserString = "INSERT INTO ismember VALUES('" + teamId + "','" + linkblueId + "')";
-            //INSERT INTO teams (name) VALUES('blah')
-            result = stmt.executeUpdate(insertUserString);
-            stmt.close();
-            conn.close();
+            try {
+                Statement stmt = conn.createStatement();
+                String insertUserString = "INSERT INTO ismember VALUES('" + teamId + "','" + linkblueId + "')";
+                //INSERT INTO teams (name) VALUES('blah')
+                result = stmt.executeUpdate(insertUserString);
+                stmt.close();
+            } catch (Exception e) {
+
+                e.printStackTrace();
+            } finally {
+                conn.close();
+            }
+
+
+        } catch(Exception ex) {
+            ex.printStackTrace();
+        }
+        return  result;
+    }
+
+    public int addEndpointToTeam(String endpointId, String teamId, String endpoint) {
+        int result = -1;
+        try {
+            Connection conn = ds.getConnection();
+            try {
+                Statement stmt = conn.createStatement();
+                String insertUserString = "INSERT INTO endpoints VALUES('" + endpointId + "','" + teamId + "','" + endpoint + "')";
+                //INSERT INTO teams (name) VALUES('blah')
+                result = stmt.executeUpdate(insertUserString);
+                stmt.close();
+            } catch (Exception e) {
+
+                e.printStackTrace();
+            } finally {
+                conn.close();
+            }
+
+
+        } catch(Exception ex) {
+            ex.printStackTrace();
+        }
+        return  result;
+    }
+
+    public int updateEndpointForTeam(String teamId, String endpoint) {
+        int result = -1;
+        try {
+            Connection conn = ds.getConnection();
+            try {
+                Statement stmt = conn.createStatement();
+                String insertUserString = "UPDATE endpoints SET endpoint='" + endpoint + "' WHERE team_id = '" + teamId +"'";
+                result = stmt.executeUpdate(insertUserString);
+                stmt.close();
+            } catch (Exception e) {
+
+                e.printStackTrace();
+            } finally {
+                conn.close();
+            }
+
 
         } catch(Exception ex) {
             ex.printStackTrace();
@@ -249,23 +371,69 @@ public class DBEngine {
         try {
 
             Connection conn = ds.getConnection();
-            String queryString = null;
+            try {
+                String queryString = null;
 
-            //region
-            queryString = " SELECT id FROM teams " +
-                    "WHERE name = '"+ teamName + "'";
+                //region
+                queryString = " SELECT id FROM teams " +
+                        "WHERE name = '" + teamName + "'";
 
 
-            Statement stmt = conn.createStatement();
+                Statement stmt = conn.createStatement();
 
-            ResultSet rs = stmt.executeQuery(queryString);
+                ResultSet rs = stmt.executeQuery(queryString);
 
-            if(rs.next()) {
-                configParams = rs.getString(1);
+                if (rs.next()) {
+                    configParams = rs.getString(1);
+                }
+
+                rs.close();
+                stmt.close();
+            } catch (Exception e) {
+
+                e.printStackTrace();
+            } finally {
+                conn.close();
             }
-            conn.close();
-            rs.close();
-            stmt.close();
+
+        } catch(Exception ex) {
+            ex.printStackTrace();
+            System.out.println(ex.getMessage());
+            StringWriter errors = new StringWriter();
+            ex.printStackTrace(new PrintWriter(errors));
+            System.out.println(errors.toString());
+        }
+        return configParams;
+    }
+
+    public String getEndPoint(String teamId) {
+        String configParams = null;
+        try {
+
+            Connection conn = ds.getConnection();
+            try {
+                String queryString = null;
+
+                //region
+                queryString = "SELECT endpoint FROM endpoints where team_id = '" + teamId + "'";
+
+
+                Statement stmt = conn.createStatement();
+
+                ResultSet rs = stmt.executeQuery(queryString);
+
+                if (rs.next()) {
+                    configParams = rs.getString(1);
+                }
+
+                rs.close();
+                stmt.close();
+            } catch (Exception e) {
+
+                e.printStackTrace();
+            } finally {
+                conn.close();
+            }
 
         } catch(Exception ex) {
             ex.printStackTrace();
@@ -281,26 +449,33 @@ public class DBEngine {
         String configParams = null;
         try {
             Connection conn = ds.getConnection();
-            String queryString = null;
+
+            try {
+                String queryString = null;
 
                 //region
                 queryString = " SELECT team_id FROM ismember " +
-                        "WHERE user_id = '"+ linkblueId + "'";
+                        "WHERE user_id = '" + linkblueId + "'";
 
 
-            //System.out.println("QUERY: [" + queryString + "]");
+                //System.out.println("QUERY: [" + queryString + "]");
 
 
-            Statement stmt = conn.createStatement();
+                Statement stmt = conn.createStatement();
 
-            ResultSet rs = stmt.executeQuery(queryString);
+                ResultSet rs = stmt.executeQuery(queryString);
 
-            if(rs.next()) {
-                configParams = rs.getString(1);
+                if (rs.next()) {
+                    configParams = rs.getString(1);
+                }
+                rs.close();
+                stmt.close();
+            } catch (Exception e) {
+
+                e.printStackTrace();
+            } finally {
+                conn.close();
             }
-            rs.close();
-            stmt.close();
-            conn.close();
 
         } catch(Exception ex) {
             ex.printStackTrace();
@@ -319,23 +494,29 @@ public class DBEngine {
         try
         {
             Connection conn = ds.getConnection();
-            String queryString = null;
+            try {
+                String queryString = null;
 
-            queryString = "SELECT * FROM teams";
+                queryString = "SELECT * FROM teams";
 
-            stmt = conn.createStatement();
+                stmt = conn.createStatement();
 
-            ResultSet rs = stmt.executeQuery(queryString);
+                ResultSet rs = stmt.executeQuery(queryString);
 
-            while (rs.next()) {
-                String teamId = rs.getString("id");
-                String teamName = rs.getString("name");
-                teamIdMap.put(teamId, teamName);
+                while (rs.next()) {
+                    String teamId = rs.getString("id");
+                    String teamName = rs.getString("name");
+                    teamIdMap.put(teamId, teamName);
+                }
+
+                rs.close();
+                stmt.close();
+            } catch (Exception e) {
+
+                e.printStackTrace();
+            } finally {
+                conn.close();
             }
-
-            rs.close();
-            stmt.close();
-            conn.close();
 
         }
         catch(Exception ex)
@@ -351,25 +532,30 @@ public class DBEngine {
         try {
 
             Connection conn = ds.getConnection();
-            String queryString = null;
+            try {
+                String queryString = null;
 
 
-            queryString = "SELECT count(M.team_id) FROM teams T, ismember M "+
-                    "WHERE T.id = M.team_id "+
-                    "AND T.id = '" + teamId + "'";
+                queryString = "SELECT count(M.team_id) FROM teams T, ismember M " +
+                        "WHERE T.id = M.team_id " +
+                        "AND T.id = '" + teamId + "'";
 
-            Statement stmt = conn.createStatement();
+                Statement stmt = conn.createStatement();
 
 
-            ResultSet rs = stmt.executeQuery(queryString);
+                ResultSet rs = stmt.executeQuery(queryString);
 
-            if(rs.next()) {
-                teamSize = rs.getInt(1);
+                if (rs.next()) {
+                    teamSize = rs.getInt(1);
+                }
+                rs.close();
+                stmt.close();
+            } catch (Exception e) {
+
+                e.printStackTrace();
+            } finally {
+                conn.close();
             }
-            rs.close();
-            stmt.close();
-            conn.close();
-
 
         } catch(Exception ex) {
             ex.printStackTrace();
@@ -381,10 +567,16 @@ public class DBEngine {
         int result = -1;
         try {
             Connection conn = ds.getConnection();
-            Statement stmt = conn.createStatement();
-            result = stmt.executeUpdate("DELETE FROM ismember WHERE user_id = '" + userId +"' and team_id = '"+ teamId  +"'");
-            stmt.close();
-            conn.close();
+            try {
+                Statement stmt = conn.createStatement();
+                result = stmt.executeUpdate("DELETE FROM ismember WHERE user_id = '" + userId + "' and team_id = '" + teamId + "'");
+                stmt.close();
+            } catch (Exception e) {
+
+                e.printStackTrace();
+            } finally {
+                conn.close();
+            }
 
         } catch(Exception ex) {
             ex.printStackTrace();
@@ -392,14 +584,21 @@ public class DBEngine {
         return  result;
     }
 
+
     public int executeUpdate(String stmtString) {
         int result = -1;
         try {
             Connection conn = ds.getConnection();
-            Statement stmt = conn.createStatement();
-            result = stmt.executeUpdate(stmtString);
-            stmt.close();
-            conn.close();
+            try {
+                Statement stmt = conn.createStatement();
+                result = stmt.executeUpdate(stmtString);
+                stmt.close();
+            } catch (Exception e) {
+
+                e.printStackTrace();
+            } finally {
+                conn.close();
+            }
 
         } catch(Exception ex) {
             ex.printStackTrace();
@@ -411,16 +610,22 @@ public class DBEngine {
         int result = -1;
         try {
             Connection conn = ds.getConnection();
-            String stmtString = null;
+            try {
+                String stmtString = null;
 
-            stmtString = "DROP TABLE " + tableName;
+                stmtString = "DROP TABLE " + tableName;
 
-            Statement stmt = conn.createStatement();
+                Statement stmt = conn.createStatement();
 
-            result = stmt.executeUpdate(stmtString);
+                result = stmt.executeUpdate(stmtString);
 
-            stmt.close();
-            conn.close();
+                stmt.close();
+            } catch (Exception e) {
+
+                e.printStackTrace();
+            } finally {
+                conn.close();
+            }
 
         } catch(Exception ex) {
             ex.printStackTrace();
