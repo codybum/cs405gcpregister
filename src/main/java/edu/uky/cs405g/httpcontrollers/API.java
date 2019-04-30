@@ -6,6 +6,8 @@ import java.lang.reflect.Type;
 
 import edu.uky.cs405g.Launcher;
 import javax.ws.rs.*;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.*;
@@ -24,6 +26,101 @@ public class API {
         mapType = new TypeToken<Map<String, String>>() {
         }.getType();
         gson = new Gson();
+    }
+
+    @GET
+    @Path("/checkmyendpoint")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response checkMyEndpoint(@HeaderParam("X-Auth-API-Key") String authKey) {
+        String responseString = "{}";
+        try {
+
+            Map<String,String> responseMap = new HashMap<>();
+
+            String teamId = Launcher.dbEngine.getMyTeamId(authKey);
+            responseMap.put("user_id",authKey);
+
+            if(Launcher.dbEngine.userExist(authKey)) {
+
+                if(teamId != null) {
+
+                    responseMap.put("team_id",teamId);
+
+                    String endpoint = Launcher.dbEngine.getEndPoint(teamId);
+                    if(endpoint != null) {
+
+                        responseMap.put("endpoint",endpoint);
+
+                        Client client = ClientBuilder.newClient();
+
+                        String status = null;
+
+                        try {
+                            status = client
+                                    .target(endpoint + "/status")
+                                    .request(MediaType.APPLICATION_JSON)
+                                    .get(String.class);
+                        } catch (javax.ws.rs.NotFoundException uex) {
+                            responseMap.put("status_warning","endpoint " + endpoint + " does not exist!");
+                        } catch (javax.ws.rs.ProcessingException cex){
+                            responseMap.put("status_warning","endpoint " + endpoint + " Connection refused !");
+                        }
+
+                        if(status != null) {
+
+                            try {
+                                Map<String, String> myMap = gson.fromJson(status, mapType);
+
+                                int statusCode = Integer.parseInt(myMap.get("status_code"));
+                                if(statusCode == 1) {
+                                    responseMap.put("success", Boolean.TRUE.toString());
+                                    responseMap.put("status_desc","status_code " + statusCode);
+                                } else {
+                                    responseMap.put("success", Boolean.FALSE.toString());
+                                    responseMap.put("status_desc","status_code " + statusCode);
+                                }
+
+                            } catch (Exception exx) {
+                                responseMap.put("success", Boolean.FALSE.toString());
+                                responseMap.put("status_desc","unable to parse status return " + status);
+                            }
+
+
+                        } else {
+                            responseMap.put("success", Boolean.FALSE.toString());
+                            responseMap.put("status_desc","No data returned for endpoint " + endpoint);
+                        }
+
+                    } else {
+                        responseMap.put("success", Boolean.FALSE.toString());
+                        responseMap.put("status_desc","No endpoint registered for team_id " + teamId);
+                    }
+
+                } else {
+                    responseMap.put("success", Boolean.FALSE.toString());
+                    responseMap.put("status_desc","You are not part of a team!");
+                }
+
+            } else {
+                responseMap.put("success", Boolean.FALSE.toString());
+                responseMap.put("status_desc","User does not exist!");
+            }
+
+
+            responseString = Launcher.gson.toJson(responseMap);
+
+
+
+        } catch (Exception ex) {
+
+            StringWriter sw = new StringWriter();
+            ex.printStackTrace(new PrintWriter(sw));
+            String exceptionAsString = sw.toString();
+            ex.printStackTrace();
+
+            return Response.status(500).entity(exceptionAsString).build();
+        }
+        return Response.ok(responseString).header("Access-Control-Allow-Origin", "*").build();
     }
 
     @GET
@@ -368,6 +465,10 @@ public class API {
             Map<String, String> myMap = gson.fromJson(jsonString, mapType);
             String teamId = myMap.get("team_id");
             String endpoint = myMap.get("endpoint");
+
+            if(endpoint.endsWith("/")) {
+                endpoint = endpoint.substring(0,endpoint.length()-1);
+            }
 
             Map<String,String> responseMap = new HashMap<>();
             responseMap.put("team_id",teamId);

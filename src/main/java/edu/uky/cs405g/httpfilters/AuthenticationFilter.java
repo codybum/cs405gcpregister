@@ -22,11 +22,11 @@ public class AuthenticationFilter implements ContainerRequestFilter {
                 if(Launcher.dbEngine.userExist(serviceKey)) {
                     return;
                 } else {
-                    requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).entity("You cannot access this resource").build());
+                    requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).entity("User: [" + serviceKey + "] You cannot access this resource!\n").build());
                 }
 
             } else {
-                requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).entity("You cannot access this resource").build());
+                requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).entity("Header: X-Auth-API-Key NOT FOUND!\n").build());
             }
 
         } catch (Exception e) {

@@ -111,6 +111,8 @@ public class DBEngine {
                         "WHERE id = '" + linkblueId + "'";
 
 
+                //System.out.println(queryString);
+
                 Statement stmt = conn.createStatement();
 
 
@@ -406,6 +408,7 @@ public class DBEngine {
         return configParams;
     }
 
+    //CREATE TABLE endpoints (id VARCHAR(50) NOT NULL, team_id VARCHAR(50) NOT NULL, endpoint VARCHAR(255) NOT NULL,  PRIMARY KEY (id), foreign key (team_id) references teams(id))
     public String getEndPoint(String teamId) {
         String configParams = null;
         try {
@@ -526,6 +529,92 @@ public class DBEngine {
 
         return teamIdMap;
     }
+
+    public List<String> getTeamList(String team_id) {
+        List<String> teamList = new ArrayList<>();
+
+        Statement stmt = null;
+        try
+        {
+            Connection conn = ds.getConnection();
+            try {
+                String queryString = null;
+
+                queryString = "SELECT user_id FROM ismember WHERE team_id = '" + team_id + "'";
+
+                //System.out.println(queryString);
+
+                stmt = conn.createStatement();
+
+                ResultSet rs = stmt.executeQuery(queryString);
+
+                while (rs.next()) {
+                    String userId = rs.getString("user_id");
+                   teamList.add(userId);
+                }
+
+                rs.close();
+                stmt.close();
+            } catch (Exception e) {
+
+                e.printStackTrace();
+            } finally {
+                conn.close();
+            }
+
+        }
+        catch(Exception ex)
+        {
+            ex.printStackTrace();
+        }
+
+        return teamList;
+    }
+
+    public Map<String,String> getEndpointMap() {
+        Map<String,String> teamIdMap = new HashMap<>();
+
+        Statement stmt = null;
+        try
+        {
+            Connection conn = ds.getConnection();
+            try {
+                String queryString = null;
+
+                //queryString = "SELECT S.name, E.endpoint FROM  endpoints E, teams S WHERE E.team_id = S.id";
+
+                queryString = "SELECT E.team_id, E.endpoint FROM  endpoints E";
+
+
+                stmt = conn.createStatement();
+
+                ResultSet rs = stmt.executeQuery(queryString);
+
+                while (rs.next()) {
+                    String teamName = rs.getString("team_id");
+                    String endpoint = rs.getString("endpoint");
+                    teamIdMap.put(teamName,endpoint);
+                }
+
+                rs.close();
+                stmt.close();
+            } catch (Exception e) {
+
+                e.printStackTrace();
+            } finally {
+                conn.close();
+            }
+
+        }
+        catch(Exception ex)
+        {
+            ex.printStackTrace();
+        }
+
+        return teamIdMap;
+    }
+
+
 
     public int teamSize(String teamId) {
         int teamSize = -1;
